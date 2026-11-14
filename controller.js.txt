@@ -1,0 +1,60 @@
+controller.js
+
+const model = new AgendamentoModel();
+
+document.addEventListener('DOMContentLoaded', () => {
+    atualizarTela();
+
+    const form = document.getElementById('form-agendamento');
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const feedback = document.getElementById('mensagem-feedback');
+
+        try {
+            const novoAgendamento = {
+                cliente: document.getElementById('cliente').value.trim(),
+                telefone: document.getElementById('telefone').value.trim(),
+                servico: document.getElementById('servico').value,
+                dataHora: document.getElementById('dataHora').value
+            };
+
+            model.salvar(novoAgendamento);
+            form.reset();
+            feedback.textContent = "✅ Agendamento realizado com sucesso!";
+            feedback.className = "feedback sucesso";
+            atualizarTela();
+        } catch (erro) {
+            feedback.textContent = "❌ Erro: " + erro.message;
+            feedback.className = "feedback erro";
+        }
+    });
+});
+
+function atualizarTela() {
+    const container = document.getElementById('lista-agendamentos');
+    const agendamentos = model.listarTodos();
+
+    if (agendamentos.length === 0) {
+        container.innerHTML = "<p style='color:#64748b; font-size:0.9rem;'>Nenhum horário agendado ainda.</p>";
+        return;
+    }
+
+    container.innerHTML = agendamentos.map(item => {
+        const dataFormatada = new Date(item.dataHora).toLocaleString('pt-BR');
+        return `
+            <div class="item-agendamento">
+                <div>
+                    <strong>${item.cliente}</strong> (${item.telefone})<br>
+                    <small>${item.servico}</small><br>
+                    <small style="color:#2563eb;">📅 ${dataFormatada}</small>
+                </div>
+                <button class="btn-cancelar" onclick="cancelarAgendamento(${item.id})">Cancelar</button>
+            </div>
+        `;
+    }).join('');
+}
+
+function cancelarAgendamento(id) {
+    model.excluir(id);
+    atualizarTela();
+}

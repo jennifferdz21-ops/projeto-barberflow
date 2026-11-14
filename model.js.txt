@@ -1,0 +1,28 @@
+model.js
+
+class AgendamentoModel {
+    constructor() {
+        this.chaveStorage = 'barberflow_agendamentos';
+    }
+
+    listarTodos() {
+        const dados = localStorage.getItem(this.chaveStorage);
+        return dados ? JSON.parse(dados) : [];
+    }
+
+    salvar(agendamento) {
+        if (!agendamento.cliente || !agendamento.telefone || !agendamento.servico || !agendamento.dataHora) {
+            throw new Error("Todos os campos são obrigatórios.");
+        }
+        const lista = this.listarTodos();
+        agendamento.id = Date.now();
+        lista.push(agendamento);
+        localStorage.setItem(this.chaveStorage, JSON.stringify(lista));
+        return agendamento;
+    }
+
+    excluir(id) {
+        const lista = this.listarTodos().filter(item => item.id !== id);
+        localStorage.setItem(this.chaveStorage, JSON.stringify(lista));
+    }
+}

@@ -1,0 +1,37 @@
+testes.html
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><title>Testes Unitários - BarberFlow</title></head>
+<body style="font-family: monospace; padding: 20px;">
+    <h2>Relatório de Testes Unitários (Model)</h2>
+    <ul id="resultados"></ul>
+    <script src="model.js"></script>
+    <script>
+        const ul = document.getElementById('resultados');
+        const testModel = new AgendamentoModel();
+        testModel.chaveStorage = 'barberflow_testes';
+        localStorage.removeItem('barberflow_testes');
+
+        function assert(condicao, descricao) {
+            const li = document.createElement('li');
+            li.textContent = (condicao ? "✅ PASSOU: " : "❌ FALHOU: ") + descricao;
+            li.style.color = condicao ? "green" : "red";
+            ul.appendChild(li);
+        }
+
+        // Teste 1: Salvar agendamento válido
+        const salvo = testModel.salvar({ cliente: "Teste", telefone: "1199999999", servico: "Corte", dataHora: "2026-11-20T10:00" });
+        assert(salvo.id !== undefined && testModel.listarTodos().length === 1, "Deve cadastrar um agendamento válido com sucesso");
+
+        // Teste 2: Impedir cadastro com campos vazios
+        let erroCapturado = false;
+        try { testModel.salvar({ cliente: "", telefone: "", servico: "", dataHora: "" }); } catch (e) { erroCapturado = true; }
+        assert(erroCapturado === true, "Deve lançar erro ao tentar salvar agendamento com campos vazios");
+
+        // Teste 3: Excluir agendamento
+        testModel.excluir(salvo.id);
+        assert(testModel.listarTodos().length === 0, "Deve excluir o agendamento corretamente");
+    </script>
+</body>
+</html>
